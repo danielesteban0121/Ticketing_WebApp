@@ -2,14 +2,10 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from fastapi import FastAPI, HTTPException, status, Depends
-from fastapi.security import HTTPBearer
+from fastapi import FastAPI, HTTPException, status, Header
 from pydantic import BaseModel
 from typing import List, Optional
 from auth.auth import verify_token
-from fastapi.responses import JSONResponse
-from fastapi.exceptions import HTTPException as FastAPIHTTPException, RequestValidationError
-from starlette.status import HTTP_403_FORBIDDEN, HTTP_422_UNPROCESSABLE_ENTITY
 
 app = FastAPI(
     title="Categories Microservice",
@@ -17,7 +13,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-security = HTTPBearer()
+print("🚀 [RENDER] Categories Microservice iniciando...")
 
 
 # -----------------------------
@@ -53,9 +49,9 @@ categories_db = [
 )
 def create_category(
     category: CategoryCreate,
-    token: str = Depends(security),
-
+    authorization: str = Header(None)
 ):
+    verify_token(authorization)
     new_id = len(categories_db) + 1
     new_category = Category(id=new_id, **category.dict())
     categories_db.append(new_category)
@@ -91,9 +87,9 @@ def get_category(category_id: int):
 def update_category(
     category_id: int,
     data: CategoryCreate,
-    token: str = Depends(security),
-
+    authorization: str = Header(None)
 ):
+    verify_token(authorization)
     for index, c in enumerate(categories_db):
         if c.id == category_id:
             updated = Category(id=category_id, **data.dict())
@@ -109,8 +105,9 @@ def update_category(
 )
 def delete_category(
     category_id: int,
-    token: str = Depends(security)
+    authorization: str = Header(None)
 ):
+    verify_token(authorization)
     for c in categories_db:
         if c.id == category_id:
             categories_db.remove(c)
@@ -118,24 +115,17 @@ def delete_category(
     raise HTTPException(status_code=404, detail="Categoría no encontrada")
 
 
-@app.exception_handler(FastAPIHTTPException)
-async def custom_http_exception_handler(request, exc):
-    # Si el error es 403, devolvemos mensaje personalizado en español
-    if exc.status_code == HTTP_403_FORBIDDEN:
-        return JSONResponse(
-            status_code=HTTP_403_FORBIDDEN,
-            content={"detail": "No tienes permisos para realizar esta acción."}
-        )
+@app.get(
+    "/health",
+    status_code=status.HTTP_200_OK,
+    summary="Health check"
+)
+def health_check():
+    """Endpoint de salud para monitoreo en Render."""
+    return {"status": "ok", "service": "categories"}
 
-    # Para otros errores, usar el mensaje normal
-    return JSONResponse(
-        status_code=exc.status_code,
-        content={"detail": exc.detail}
-    )
 
-@app.exception_handler(RequestValidationError)
-async def validation_exception_handler(request, exc):
-    return JSONResponse(
-        status_code=HTTP_422_UNPROCESSABLE_ENTITY,
-        content={"detail": "Los datos enviados no son válidos. Verifica la información proporcionada."}
-    )
+@app.on_event("startup")
+async def startup_event():
+    """Evento de inicio del servicio."""
+    print("✅ [RENDER] Categories Microservice está listo.")

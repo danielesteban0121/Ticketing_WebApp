@@ -1,26 +1,18 @@
-from fastapi import HTTPException, Header, status
-from pydantic import BaseModel
+import os
+from fastapi import HTTPException, status
 
 # ============================
-#  ADMIN POR DEFECTO
+#  TOKEN DE AUTENTICACIÓN
 # ============================
-DEFAULT_ADMIN = "KevinYDaniel123"
-
-# ============================
-#  TOKEN GLOBAL
-# ============================
-AUTH_TOKEN = "DANIELYKEVIN123"
-
-# Estructura opcional para futuros usuarios
-class User(BaseModel):
-    username: str
-    password: str
+# En Render, usar variable de entorno AUTH_TOKEN
+AUTH_TOKEN = os.getenv("AUTH_TOKEN", "DANIELYKEVIN123")
 
 # ============================
 #  VALIDADOR DE TOKEN
 # ============================
-def verify_token(auth_token: str = Header(None)):
-    if auth_token != AUTH_TOKEN:
+def verify_token(token: str) -> bool:
+    """Valida el token de autenticación."""
+    if token != AUTH_TOKEN:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token inválido o no proporcionado"

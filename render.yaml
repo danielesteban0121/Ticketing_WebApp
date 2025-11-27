@@ -4,9 +4,9 @@ services:
     env: python
     plan: free
     region: oregon
-    rootDir: .
-    buildCommand: pip install -r requirements.txt
-    startCommand: bash start.sh ms-categories
+    rootDir: ms-categories
+    buildCommand: pip install -r ../requirements.txt
+    startCommand: bash ../start.sh ms-categories
     autoDeploy: true
 
   - type: web
@@ -14,9 +14,9 @@ services:
     env: python
     plan: free
     region: oregon
-    rootDir: .
-    buildCommand: pip install -r requirements.txt
-    startCommand: bash start.sh ms-cities
+    rootDir: ms-cities
+    buildCommand: pip install -r ../requirements.txt
+    startCommand: bash ../start.sh ms-cities
     autoDeploy: true
 
   - type: web
@@ -24,7 +24,7 @@ services:
     env: python
     plan: free
     region: oregon
-    rootDir: .
-    buildCommand: pip install -r requirements.txt
-    startCommand: bash start.sh ms-points-of-sale
+    rootDir: ms-points-of-sale
+    buildCommand: pip install -r ../requirements.txt
+    startCommand: bash ../start.sh ms-points-of-sale
     autoDeploy: true
