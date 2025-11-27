@@ -6,7 +6,7 @@ services:
     region: oregon
     rootDir: ms-categories
     buildCommand: pip install -r ../requirements.txt
-    startCommand: PYTHONPATH=.. gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT --workers 2
+    startCommand: cd .. && gunicorn -k uvicorn.workers.UvicornWorker ms-categories.main:app --bind 0.0.0.0:$PORT --workers 2
     autoDeploy: true
 
   - type: web
@@ -16,7 +16,7 @@ services:
     region: oregon
     rootDir: ms-cities
     buildCommand: pip install -r ../requirements.txt
-    startCommand: PYTHONPATH=.. gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT --workers 2
+    startCommand: cd .. && gunicorn -k uvicorn.workers.UvicornWorker ms-cities.main:app --bind 0.0.0.0:$PORT --workers 2
     autoDeploy: true
 
   - type: web
@@ -26,5 +26,5 @@ services:
     region: oregon
     rootDir: ms-points-of-sale
     buildCommand: pip install -r ../requirements.txt
-    startCommand: PYTHONPATH=.. gunicorn -k uvicorn.workers.UvicornWorker main:app --bind 0.0.0.0:$PORT --workers 2
+    startCommand: cd .. && gunicorn -k uvicorn.workers.UvicornWorker ms-points-of-sale.main:app --bind 0.0.0.0:$PORT --workers 2
     autoDeploy: true
