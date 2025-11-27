@@ -1,0 +1,30 @@
+services:
+  - type: web
+    name: ms-categories
+    env: python
+    plan: free
+    region: oregon
+    root: ms-categories
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker ms-categories.main:app --bind 0.0.0.0:$PORT --workers 2
+    autoDeploy: true
+
+  - type: web
+    name: ms-cities
+    env: python
+    plan: free
+    region: oregon
+    root: ms-cities
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker ms-cities.main:app --bind 0.0.0.0:$PORT --workers 2
+    autoDeploy: true
+
+  - type: web
+    name: ms-points-of-sale
+    env: python
+    plan: free
+    region: oregon
+    root: ms-points-of-sale
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn -k uvicorn.workers.UvicornWorker ms-points-of-sale.main:app --bind 0.0.0.0:$PORT --workers 2
+    autoDeploy: true
