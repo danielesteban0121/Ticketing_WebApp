@@ -1,30 +1,22 @@
 import os
 from fastapi import HTTPException, status
+from fastapi.security import HTTPAuthorizationCredentials
 
-# ============================
-#  TOKEN DE AUTENTICACIÓN
-# ============================
-# En Render, usar variable de entorno AUTH_TOKEN
 AUTH_TOKEN = os.getenv("AUTH_TOKEN", "DANIELYKEVIN123")
 
-# ============================
-#  VALIDADOR DE TOKEN
-# ============================
-def verify_token(token: str = None) -> bool:
-    """Valida el token de autenticación."""
-    if not token:
+def verify_token(credentials: HTTPAuthorizationCredentials):
+    if credentials is None:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token no proporcionado o inválido"
+            detail="Token no proporcionado"
         )
-    
-    # Si viene "Bearer TOKEN", extrae solo el token
-    if token.startswith("Bearer "):
-        token = token[7:]
-    
+
+    token = credentials.credentials  # FastAPI ya separa "Bearer"
+
     if token != AUTH_TOKEN:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
             detail="Token inválido"
         )
+
     return True

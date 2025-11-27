@@ -2,7 +2,8 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from fastapi import FastAPI, HTTPException, status, Header
+from fastapi import FastAPI, HTTPException, status, Depends
+from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
 from pydantic import BaseModel
 from typing import List, Optional
 from auth.auth import verify_token
@@ -15,6 +16,8 @@ app = FastAPI(
 
 print("🚀 [RENDER] Cities Microservice iniciando...")
 
+# Seguridad Bearer para Swagger
+security = HTTPBearer()
 
 # -----------------------------
 # MODELOS
@@ -51,9 +54,9 @@ cities_db = [
 )
 def create_city(
     city: CityCreate,
-    authorization: str = Header(None)
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    verify_token(authorization)
+    verify_token(credentials)
     new_id = len(cities_db) + 1
     new_city = City(id=new_id, **city.dict())
     cities_db.append(new_city)
@@ -89,9 +92,9 @@ def get_city(city_id: int):
 def update_city(
     city_id: int,
     data: CityCreate,
-    authorization: str = Header(None)
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    verify_token(authorization)
+    verify_token(credentials)
     for index, c in enumerate(cities_db):
         if c.id == city_id:
             updated = City(id=city_id, **data.dict())
@@ -107,9 +110,9 @@ def update_city(
 )
 def delete_city(
     city_id: int,
-    authorization: str = Header(None)
+    credentials: HTTPAuthorizationCredentials = Depends(security)
 ):
-    verify_token(authorization)
+    verify_token(credentials)
     for c in cities_db:
         if c.id == city_id:
             cities_db.remove(c)

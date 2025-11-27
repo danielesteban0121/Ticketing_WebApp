@@ -2,7 +2,8 @@ import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), '..'))
 
-from fastapi import FastAPI, HTTPException, Header, status
+from fastapi import FastAPI, HTTPException, Header, status, Security
+from fastapi.security import APIKeyHeader
 from pydantic import BaseModel
 from typing import Optional
 from auth.auth import verify_token
@@ -14,6 +15,11 @@ app = FastAPI(
 )
 
 print("🚀 [RENDER] Points of Sale Microservice iniciando...")
+
+# -----------------------------
+# Security (Swagger)
+# -----------------------------
+api_key_scheme = APIKeyHeader(name="Authorization", auto_error=False)
 
 # ---------------------------------------------------
 # Model
@@ -30,7 +36,9 @@ points_db = [
     {"id": 2, "name": "Branch Store", "city_id": 2, "address": "Avenue 45"},
 ]
 
+# ---------------------------------------------------
 # Endpoints
+# ---------------------------------------------------
 
 @app.post(
     "/points-of-sale",
@@ -40,7 +48,7 @@ points_db = [
 )
 def create_point_of_sale(
     point: PointOfSale,
-    authorization: str = Header(None)
+    authorization: str = Security(api_key_scheme)
 ):
     verify_token(authorization)
 
@@ -84,7 +92,7 @@ def get_point(point_id: int):
 def update_point(
     point_id: int,
     data: PointOfSale,
-    authorization: str = Header(None)
+    authorization: str = Security(api_key_scheme)
 ):
     verify_token(authorization)
 
@@ -104,7 +112,7 @@ def update_point(
 )
 def delete_point(
     point_id: int,
-    authorization: str = Header(None)
+    authorization: str = Security(api_key_scheme)
 ):
     verify_token(authorization)
 
@@ -122,11 +130,9 @@ def delete_point(
     summary="Health check"
 )
 def health_check():
-    """Endpoint de salud para monitoreo en Render."""
     return {"status": "ok", "service": "points-of-sale"}
 
 
 @app.on_event("startup")
 async def startup_event():
-    """Evento de inicio del servicio."""
     print("✅ [RENDER] Points of Sale Microservice está listo.")
